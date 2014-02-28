@@ -37,18 +37,16 @@ namespace ProxyEmitter.Test.Dummy
                 return default(TRet);
             return (TRet)returnValue;
         }
-
-        public override void Initialize(object state)
-        {
-            TestContext = (TestContext) state;
-        }
-
         #endregion
 
         #region For Test
 
         public TestContext TestContext { get; set; }
 
+        public DummyProxyBase(TestContext testContext)
+        {
+            TestContext = testContext;
+        }
         #endregion
     }
 }

@@ -11,8 +11,7 @@ namespace ProxyEmitter.Test
         [TestMethod]
         public void TestEmit()
         {
-            var service = ProxyEmitter.CreateProxy<DummyProxyBase, IDummyService>();
-            (service as DummyProxyBase).Initialize(TestContext);
+            var service = ProxyEmitter.CreateProxy<DummyProxyBase, IDummyService>(TestContext);
             service.Fn1();
             service.Fn3(0, 0);
             Assert.AreEqual(0, service.Fn2());

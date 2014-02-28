@@ -108,15 +108,19 @@ namespace ProxyEmitter
         /// </summary>
         /// <param name="baseType">Type of derived <see cref="ProxyBase"/> class</param>
         /// <param name="interfaceType">Type of interface</param>
+        /// <param name="args">An array of arguments that match in number, order, 
+        /// and type the parameters of the constructor to invoke. 
+        /// If args is an empty array or null, the constructor that takes no parameters (the default constructor) 
+        /// is invoked. </param>
         /// <exception cref="ArgumentException">
         /// Thrown if <paramref name="baseType"/> is not derived from <see cref="ProxyBase"/>,
         /// nor <paramref name="interfaceType"/> is not an interface.
         /// </exception>
         /// <returns>Instance of Proxy class that drived from both <paramref name="baseType"/> and <paramref name="interfaceType"/></returns>
-        public static object CreateProxy(Type baseType, Type interfaceType)
+        public static object CreateProxy(Type baseType, Type interfaceType, params object[] args)
         {
             var type = CreateType(baseType, interfaceType);
-            return Activator.CreateInstance(type);
+            return Activator.CreateInstance(type, args);
         }
 
         /// <summary>
@@ -124,15 +128,19 @@ namespace ProxyEmitter
         /// </summary>
         /// <typeparam name="TBase">Type of derived <see cref="ProxyBase"/> class</typeparam>
         /// <typeparam name="TInterface">Type of interface</typeparam>
+        /// <param name="args">An array of arguments that match in number, order, 
+        /// and type the parameters of the constructor to invoke. 
+        /// If args is an empty array or null, the constructor that takes no parameters (the default constructor) 
+        /// is invoked. </param>
         /// <exception cref="ArgumentException">
         /// Thrown if <typeparamref name="TInterface"/> is not an interface.
         /// </exception>
         /// <returns>Instance of Proxy class that drived from both <typeparamref name="TBase"/> and <typeparamref name="TInterface"/></returns>
-        public static TInterface CreateProxy<TBase, TInterface>()
+        public static TInterface CreateProxy<TBase, TInterface>(params object[] args)
             where TBase : ProxyBase
             where TInterface : class
         {
-            return (TInterface)CreateProxy(typeof(TBase), typeof(TInterface));
+            return (TInterface)CreateProxy(typeof(TBase), typeof(TInterface), args);
         }
 
         #endregion
@@ -145,7 +153,14 @@ namespace ProxyEmitter
             ModuleBuilder mBuilder = Emitter.GetModule(asmBuilder, "EmittedProxies");
             TypeBuilder tBuilder = Emitter.GetType(mBuilder, String.Format("{0}{1}Proxy", baseType.FullName, interfaceType), baseType, new[] { interfaceType });
 
-            // TODO: emit parametrized ctor 
+            // TODO: emit parametrized ctor
+            var constructors = baseType.GetConstructors();
+            foreach (var ctor in constructors)
+            {
+                Debug.WriteLine(ctor.Name);
+                EmitCtor(tBuilder, ctor);
+            }
+
             var superType = typeof(ProxyBase);
             var invokeMethod = superType.GetMethod("Invoke", BindingFlags.Instance | BindingFlags.NonPublic);
             var convertMethod = superType.GetMethod("ConvertReturnValue", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -158,6 +173,33 @@ namespace ProxyEmitter
             }
             var proxyType = tBuilder.CreateType();
             return proxyType;
+        }
+
+        private static void EmitCtor(TypeBuilder tBuilder, ConstructorInfo ctor)
+        {
+            var pTypes = ctor.GetParameters().Select(p => p.ParameterType).ToArray();
+            var builder = Emitter.GetConstructor(
+                tBuilder,
+                MethodAttributes.Public |
+                MethodAttributes.HideBySig |
+                MethodAttributes.SpecialName |
+                MethodAttributes.RTSpecialName,
+                pTypes
+                );
+            var ilGen = builder.GetILGenerator();
+
+            // No locals
+
+            // Load all args, note arg 0 is this pointer, so must emit one more
+            for (int i = 0; i <= pTypes.Length; i++)
+            {
+                DoEmit(ilGen, OpCodes.Ldarg_S, i);
+            }
+            // Call base ctor
+            DoEmit(ilGen, OpCodes.Call, ctor);
+            
+            // Return
+            DoEmit(ilGen, OpCodes.Ret);
         }
 
         private static void EmitInterfaceMethod(TypeBuilder tBuilder, MethodInfo method, MethodInfo invokeMethod, MethodInfo convertMethod)
@@ -317,6 +359,12 @@ namespace ProxyEmitter
         {
             Debug.WriteLine("0x{0:X4}: {1}", ilGen.ILOffset, opCode);
             ilGen.Emit(opCode);
+        }
+
+        private static void DoEmit(ILGenerator ilGen, OpCode opCode, ConstructorInfo parm)
+        {
+            Debug.WriteLine("0x{0:X4}: {1} {2}", ilGen.ILOffset, opCode, parm);
+            ilGen.Emit(opCode, parm);
         }
 
         private static void DoEmit(ILGenerator ilGen, OpCode opCode, string parm)

@@ -88,16 +88,17 @@ namespace ProxyEmitter
             return builder;
         }
 
-        public static MethodBuilder GetMethod(TypeBuilder typBuilder, string methodName, MethodAttributes attributes)
+        public static MethodBuilder GetMethod(TypeBuilder typeBuilder, string methodName, MethodAttributes attributes)
         {
-            MethodBuilder builder = typBuilder.DefineMethod(
+            MethodBuilder builder = typeBuilder.DefineMethod(
                 methodName,
                 attributes);
             return builder;
         }
-        public static MethodBuilder GetMethod(TypeBuilder typBuilder, string methodName, MethodAttributes attributes, Type returnType, params Type[] parameterTypes)
+
+        public static MethodBuilder GetMethod(TypeBuilder typeBuilder, string methodName, MethodAttributes attributes, Type returnType, params Type[] parameterTypes)
         {
-            MethodBuilder builder = typBuilder.DefineMethod(
+            MethodBuilder builder = typeBuilder.DefineMethod(
                 methodName,
                 attributes,
                 CallingConventions.HasThis,
@@ -106,9 +107,14 @@ namespace ProxyEmitter
             return builder;
         }
 
-        public static MethodBuilder GetMethod(TypeBuilder typBuilder, string methodName, MethodAttributes attributes, Type returnType, string[] genericParameters, params Type[] parameterTypes)
+        public static ConstructorBuilder GetConstructor(TypeBuilder typeBuilder, MethodAttributes attributes, params Type[] parameterTypes)
         {
-            MethodBuilder builder = typBuilder.DefineMethod(
+            return typeBuilder.DefineConstructor(attributes, CallingConventions.HasThis, parameterTypes);
+        }
+
+        public static MethodBuilder GetMethod(TypeBuilder typeBuilder, string methodName, MethodAttributes attributes, Type returnType, string[] genericParameters, params Type[] parameterTypes)
+        {
+            MethodBuilder builder = typeBuilder.DefineMethod(
                 methodName,
                 attributes,
                 CallingConventions.HasThis,
