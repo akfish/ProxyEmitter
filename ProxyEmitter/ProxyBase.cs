@@ -13,10 +13,11 @@ namespace ProxyEmitter
         /// <summary>
         /// Invoke method
         /// </summary>
+        /// <param name="namespace">Namespace of the method to be invoked</param>
         /// <param name="methodName">Method to be invoked</param>
         /// <param name="arguments">Argument list for the invoked method</param>
         /// <returns></returns>
-        protected abstract object Invoke(string methodName, object[] arguments);
+        protected abstract object Invoke(string @namespace, string methodName, object[] arguments);
 
         /// <summary>
         /// Convert return value of <see cref="Invoke"/> method to a specific type
