@@ -3,6 +3,7 @@ namespace ProxyEmitter.Test.Dummy
     /// <summary>
     /// All kinds of interfaces
     /// </summary>
+    [ProxyNamespace("CatX")]
     public interface IDummyService
     {
         void Fn1();

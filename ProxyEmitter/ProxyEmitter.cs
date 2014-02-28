@@ -153,7 +153,7 @@ namespace ProxyEmitter
             ModuleBuilder mBuilder = Emitter.GetModule(asmBuilder, "EmittedProxies");
             TypeBuilder tBuilder = Emitter.GetType(mBuilder, String.Format("{0}{1}Proxy", baseType.FullName, interfaceType), baseType, new[] { interfaceType });
 
-            // TODO: emit parametrized ctor
+            // Emit parametrized ctor
             var constructors = baseType.GetConstructors();
             foreach (var ctor in constructors)
             {
@@ -161,15 +161,19 @@ namespace ProxyEmitter
                 EmitCtor(tBuilder, ctor);
             }
 
+            // Get namespace information
+            var namespaceAttr = interfaceType.GetCustomAttribute<ProxyNamespaceAttribute>();
+            var ns = namespaceAttr == null ? "" : namespaceAttr.Namespace;
+
+            // Create methods in interfaceType
             var superType = typeof(ProxyBase);
             var invokeMethod = superType.GetMethod("Invoke", BindingFlags.Instance | BindingFlags.NonPublic);
             var convertMethod = superType.GetMethod("ConvertReturnValue", BindingFlags.Instance | BindingFlags.NonPublic);
-            // Create methods in interfaceType
             var methods = interfaceType.GetMethods();
             foreach (var method in methods)
             {
                 Debug.WriteLine(method.Name);
-                EmitInterfaceMethod(tBuilder, method, invokeMethod, convertMethod);
+                EmitInterfaceMethod(tBuilder, ns, method, invokeMethod, convertMethod);
             }
             var proxyType = tBuilder.CreateType();
             return proxyType;
@@ -202,7 +206,7 @@ namespace ProxyEmitter
             DoEmit(ilGen, OpCodes.Ret);
         }
 
-        private static void EmitInterfaceMethod(TypeBuilder tBuilder, MethodInfo method, MethodInfo invokeMethod, MethodInfo convertMethod)
+        private static void EmitInterfaceMethod(TypeBuilder tBuilder, string ns, MethodInfo method, MethodInfo invokeMethod, MethodInfo convertMethod)
         {
             #region Emit Signatue
             //  .method public hidebysig virtual instance void 
@@ -226,7 +230,7 @@ namespace ProxyEmitter
 
             EmitHead(ilGen, method);
 
-            EmitInvokeArguments(ilGen, method, pTypes);
+            EmitInvokeArguments(ilGen, ns, method, pTypes);
 
             EmitInvoke(ilGen, method, invokeMethod);
 
@@ -258,10 +262,10 @@ namespace ProxyEmitter
                 DoEmit(ilGen, OpCodes.Ldarg_0);
         }
 
-        private static void EmitInvokeArguments(ILGenerator ilGen, MethodInfo method, Type[] pTypes)
+        private static void EmitInvokeArguments(ILGenerator ilGen, string ns, MethodInfo method, Type[] pTypes)
         {
             // Zero-th one, namespace
-            DoEmit(ilGen, OpCodes.Ldstr, "");
+            DoEmit(ilGen, OpCodes.Ldstr, ns);
             // First one, method name
             // IL_0002: ldstr "Fn2"
             DoEmit(ilGen, OpCodes.Ldstr, method.Name);

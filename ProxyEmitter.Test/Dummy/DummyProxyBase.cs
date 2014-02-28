@@ -13,8 +13,9 @@ namespace ProxyEmitter.Test.Dummy
     {
         #region ProxyBase
 
-        protected override object Invoke(string nspace, string methodName, object[] arguments)
+        protected override object Invoke(string @namespace, string methodName, object[] arguments)
         {
+            CurrentNameSpace = @namespace;
             if (arguments != null)
                 TestContext.WriteLine("{0}({1})", methodName, string.Join(", ", arguments));
             else
@@ -30,6 +31,8 @@ namespace ProxyEmitter.Test.Dummy
             int sum = arguments.Cast<int>().Sum();
             return sum;
         }
+
+        public string CurrentNameSpace { get; private set; }
 
         protected override TRet ConvertReturnValue<TRet>(object returnValue)
         {
