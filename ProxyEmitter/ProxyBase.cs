@@ -25,5 +25,11 @@ namespace ProxyEmitter
         /// <param name="returnValue">Return value of <see cref="Invoke"/> method</param>
         /// <returns></returns>
         protected abstract TRet ConvertReturnValue<TRet>(object returnValue);
+
+        /// <summary>
+        /// Initialize
+        /// </summary>
+        /// <param name="state"></param>
+        public abstract void Initialize(object state);
     }
 }

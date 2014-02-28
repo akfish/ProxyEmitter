@@ -42,7 +42,7 @@ namespace ProxyEmitter
         /// <returns></returns>
         public static ModuleBuilder GetModule(AssemblyBuilder asmBuilder, String moduleName)
         {
-            ModuleBuilder builder = asmBuilder.DefineDynamicModule(moduleName);//"EmitMethods", "EmitMethods.dll");
+            ModuleBuilder builder = asmBuilder.DefineDynamicModule(moduleName, true);//"EmitMethods", "EmitMethods.dll");
             return builder;
         }
 

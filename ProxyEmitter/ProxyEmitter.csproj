@@ -39,9 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dummy\DummyProxyBase.cs" />
-    <Compile Include="Dummy\DummyService.cs" />
-    <Compile Include="Dummy\IDummyService.cs" />
     <Compile Include="Emitter.cs" />
     <Compile Include="ProxyBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

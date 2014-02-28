@@ -50,8 +50,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Dummy\DummyProxyBase.cs" />
+    <Compile Include="Dummy\IDummyService.cs" />
     <Compile Include="EmitterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProxyEmitter\ProxyEmitter.csproj">
+      <Project>{6b47dea6-9b53-4113-866c-6f53a92d71e2}</Project>
+      <Name>ProxyEmitter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
