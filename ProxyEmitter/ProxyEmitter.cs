@@ -260,6 +260,8 @@ namespace ProxyEmitter
 
         private static void EmitInvokeArguments(ILGenerator ilGen, MethodInfo method, Type[] pTypes)
         {
+            // Zero-th one, namespace
+            DoEmit(ilGen, OpCodes.Ldstr, "");
             // First one, method name
             // IL_0002: ldstr "Fn2"
             DoEmit(ilGen, OpCodes.Ldstr, method.Name);

@@ -13,7 +13,7 @@ namespace ProxyEmitter.Test.Dummy
     {
         #region ProxyBase
 
-        protected override object Invoke(string methodName, object[] arguments)
+        protected override object Invoke(string nspace, string methodName, object[] arguments)
         {
             if (arguments != null)
                 TestContext.WriteLine("{0}({1})", methodName, string.Join(", ", arguments));
